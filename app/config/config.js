@@ -24,7 +24,7 @@ var config = {
       hostname: process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1'
     },
     database: {
-      url: 'postgresql://$OPENSHIFT_POSTGRESQL_DB_HOST:$OPENSHIFT_POSTGRESQL_DB_PORT' || 'postgresql://127.0.0.1:5432',
+      url: process.env.OPENSHIFT_POSTGRESQL_DB_URL || 'postgresql://127.0.0.1:5432',
       dbname: process.env.OPENSHIFT_APP_NAME || 'routingonosm'
     },
     root: rootPath
