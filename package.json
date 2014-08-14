@@ -1,35 +1,47 @@
 {
-  "name": "OpenShift-Sample-App",
+  "name": "osmapp",
   "version": "1.0.0",
-  "description": "OpenShift Sample Application",
+  "description": "OpenStreetMap Application",
   "keywords": [
-    "OpenShift",
+    "OpenStreetMap",
     "Node.js",
     "application",
     "openshift"
   ],
   "author": {
-    "name": "OpenShift",
-    "email": "ramr@example.org",
-    "url": "http://www.openshift.com/"
+    "name": "brandboat",
+    "email": "brandboat@gmail.com",
+    "github": "https://github.com/brandboat"
   },
-  "homepage": "http://www.openshift.com/",
+  "homepage": "http://osmapp-brandboat.rhcloud.com/",
   "repository": {
     "type": "git",
-    "url": "https://github.com/openshift/origin-server"
+    "url": "https://github.com/brandboat/osmapp"
   },
-
+  "scripts": {
+    "start": "node server.js"
+  },
+  "main": "server.js",
   "engines": {
     "node": ">= 0.6.0",
     "npm": ">= 1.0.0"
   },
 
   "dependencies": {
-    "express": "~3.4.4"
+    "express": "^4.3.1",
+    "jade": "^1.3.1",
+    "morgan": "^1.1.1",
+    "errorhandler": "^1.0.1",
+    "pg-query": "^0.10.0",
+    "pg": "^3.4.0"
   },
+
   "devDependencies": {},
   "bundleDependencies": [],
 
   "private": true,
-  "main": "server.js"
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  }
 }

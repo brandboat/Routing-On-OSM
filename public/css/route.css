@@ -1,0 +1,23 @@
+html, body {
+  font-family: "Open Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+  height: 100%;
+}
+
+#map {
+  position: relative;
+  float: right;
+  width: 69%;
+  min-height: 100%;
+}
+
+#menu {
+  position: relative;
+  float: left;
+  width: 30%;
+  min-height: 100%;
+}
+
+#road {
+  max-height: 300px;
+  overflow: auto;
+}
