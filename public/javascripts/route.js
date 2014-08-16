@@ -55,9 +55,12 @@ function routing() {
     var str = "",
         tmp = "";
     for(var i = 0; i != data.length; i++) {
+      if(tmp !== data[i].road) {
         str += "<p>";
         str += data[i].road;
         str += "</p>";
+      }
+      tmp = data[i].road;
     }
     $("#road").html(str);
   });
