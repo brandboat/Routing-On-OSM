@@ -11,7 +11,7 @@ var config = {
     },
     database: {
       url: 'postgresql://127.0.0.1:5432',
-      dbname: 'test'
+      dbname: 'taiwan'
     },
     root: rootPath
   },
@@ -47,4 +47,4 @@ var config = {
   }
 };
 
-module.exports = config[process.env.NODE_ENV || 'production'];
+module.exports = config[process.env.NODE_ENV || 'development'];
