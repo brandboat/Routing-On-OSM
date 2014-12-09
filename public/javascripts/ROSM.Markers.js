@@ -5,6 +5,24 @@ ROSM.Markers = function() {
   this.poi = {};
   // poi clustered markers
   this.poiCluster = new L.MarkerClusterGroup();
+  this.beginIcon = L.MakiMarkers.icon({
+    icon: "marker",
+    color: "#008000",
+    size: "l"
+  });
+
+  this.viaIcon = L.MakiMarkers.icon({
+    icon: "marker",
+    color: "#8A0829",
+    size: "l"
+  });
+
+  this.endIcon = L.MakiMarkers.icon({
+    icon: "marker",
+    color: "#FF0000",
+    size: "l"
+  });
+
   ROSM.G.map.addLayer(this.poiCluster);
 }
 
@@ -41,32 +59,20 @@ ROSM.extend(ROSM.Markers, {
   },
 
   setSource: function(position) {
-    var beginIcon = L.MakiMarkers.icon({
-      icon: "marker",
-      color: "#008000",
-      size: "l"
-    });
-
     if(this.route[0] && this.route[0].label == ROSM.CONSTANTS.SOURCE_LABEL) {
       this.route[0].setPosition(position);
     } else {
-      this.route.splice(0, 0, new ROSM.Marker(ROSM.CONSTANTS.SOURCE_LABEL, {icon: beginIcon}, position));
+      this.route.splice(0, 0, new ROSM.Marker(ROSM.CONSTANTS.SOURCE_LABEL, {icon: this.beginIcon}, position));
     }
     ROSM.G.markers.addPopup();
     return 0;
   },
 
   setTarget: function(position) {
-    var endIcon = L.MakiMarkers.icon({
-      icon: "marker",
-      color: "#FF0000",
-      size: "l"
-    });
-
     if(this.route[this.route.length - 1] && this.route[this.route.length - 1].label == ROSM.CONSTANTS.TARGET_LABEL) {
       this.route[this.route.length - 1].setPosition(position);
     } else {
-      this.route.splice(this.route.length, 0, new ROSM.Marker(ROSM.CONSTANTS.TARGET_LABEL, {icon: endIcon}, position));
+      this.route.splice(this.route.length, 0, new ROSM.Marker(ROSM.CONSTANTS.TARGET_LABEL, {icon: this.endIcon}, position));
     }
     ROSM.G.markers.addPopup();
     return this.route.length - 1;
@@ -77,12 +83,7 @@ ROSM.extend(ROSM.Markers, {
       return;
     }
 
-    var viaIcon = L.MakiMarkers.icon({
-      icon: "marker",
-      color: "#8A0829",
-      size: "l"
-    });
-    this.route.splice(this.route.length - 1, 0, new ROSM.Marker(ROSM.CONSTANTS.VIA_LABEL, {icon: viaIcon}, position));
+    this.route.splice(this.route.length - 1, 0, new ROSM.Marker(ROSM.CONSTANTS.VIA_LABEL, {icon: this.viaIcon}, position));
     ROSM.JSON.clear("routing");
     ROSM.G.markers.addPopup();
     ROSM.G.markers.show();
@@ -116,6 +117,7 @@ ROSM.extend(ROSM.Markers, {
       if(this.route.length > 1) {
         this.route[0].setLabel(ROSM.C.SOURCE_LABEL);
         this.route[0].setDescription("Source");
+        this.route[0].setIcon(this.beginIcon);
       }
     } else if(id == this.route.length-1 && this.route[ this.route.length-1 ].label == ROSM.C.TARGET_LABEL) {
       id = this.route.length-1;
@@ -128,6 +130,7 @@ ROSM.extend(ROSM.Markers, {
       if(this.route.length > 1) {
         this.route[this.route.length - 1].setLabel(ROSM.C.TARGET_LABEL);
         this.route[this.route.length - 1].setDescription("Target");
+        this.route[this.route.length - 1].setIcon(this.endIcon);
       }
     } else {
       ROSM.G.route.reset();
