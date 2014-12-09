@@ -13,8 +13,8 @@ Demo : http://routingonosm-brandboat.rhcloud.com/
 ## How to use :
 1. install nodejs 0.10 , postgresql9.1, postGIS2.0, pgrouting
 2. psql -U username -d dbname
-3. CREATE postgis;
-4. CREATE pgrouting;
+3. CREATE EXTENSION postgis;
+4. CREATE EXTENSION pgrouting;
 5. download map data from openstreetmap
 6. osm2pgrouting -file "sampledata.osm" \
                           -conf "/usr/share/osm2pgrouting/mapconfig.xml" \
