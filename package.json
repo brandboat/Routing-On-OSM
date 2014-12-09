@@ -33,7 +33,8 @@
     "morgan": "^1.1.1",
     "errorhandler": "^1.0.1",
     "pg-query": "^0.10.0",
-    "pg": "^3.4.0"
+    "pg": "^3.4.0",
+    "serve-favicon": "^2.1.7"
   },
 
   "devDependencies": {},

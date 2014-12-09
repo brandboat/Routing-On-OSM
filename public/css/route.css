@@ -1,23 +1,140 @@
 html, body {
   font-family: "Open Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
   height: 100%;
+  width: 100%;
+  margin: 0px;
 }
 
 #map {
   position: relative;
   float: right;
-  width: 69%;
-  min-height: 100%;
+  right: 0px;
+  width: calc(100% - 150px);;
+  height: calc(100% - 80px);
 }
 
-#menu {
+#routingFunction {
+  position: absolute;
+  left: -410px;
+  width: 410px;
+  height: calc(100% - 80px);
+  top: 80px;
+  /*bottom: 5px;*/
+  /*left: 5px;*/
+  margin: 0px;
+  z-index: 20;
+  background-color: #FFF;
+
+  /*position: relative;
+  /*float: left;*/
+  /*width: 30%;*/
+  /*min-height: 100%;*/
+  z-index: 20;
+}
+
+#headerPanel {
   position: relative;
-  float: left;
-  width: 30%;
-  min-height: 100%;
+  height: 80px;
+  z-index: 10;
+  background-color: #222222;
+  margin: 0px;
+  border-radius: 0px;
+}
+
+#title {
+  left: 20px;
+}
+
+#leftPanel {
+  position: absolute;
+  top:80px;
+  width: 150px;
+  height: calc(100% - 80px);
+  overflow-x: visible;
+  z-index: 100;
+  margin: 0px;
+}
+
+table {
+  bottom: 20px;
+}
+
+#menu-show {
+  height: 60%;
 }
 
 #road {
-  max-height: 300px;
+  max-height: 100%;
   overflow: auto;
+}
+
+#hidden-something{
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  margin: 0px;
+  z-index: 3000;
+}
+
+#geocoder-menu{
+  position: relative;
+  height: 70%;
+  width: 600px;
+  margin: 30px auto;
+  background-color: white;
+  z-index: 2000;
+}
+
+#geocoder-result {
+  text-align:left;
+  height: 85%;
+  overflow: auto;
+}
+
+#searchFunction {
+  position: absolute;
+  left: -410px;
+  width: 410px;
+  height: calc(100% - 80px);
+  top: 80px;
+  /*bottom: 5px;*/
+  /*left: 5px;*/
+  margin: 0px;
+  z-index: 15;
+  background-color: #FFF;
+
+  /*position: relative;
+  /*float: left;*/
+  /*width: 30%;*/
+  /*min-height: 100%;*/
+  z-index: 20;
+}
+
+#search-point-result {
+  height: 60%;
+  overflow: auto;
+}
+
+#poiFunction {
+  position: absolute;
+  left: -410px;
+  width: 410px;
+  height: calc(100% - 80px);
+  top: 80px;
+  /*bottom: 5px;*/
+  /*left: 5px;*/
+  margin: 0px;
+  z-index: 15;
+  background-color: #FFF;
+
+  /*position: relative;
+  /*float: left;*/
+  /*width: 30%;*/
+  /*min-height: 100%;*/
+  z-index: 20;
+}
+
+
+.ui.grid {
+  text-align: center !important;
 }

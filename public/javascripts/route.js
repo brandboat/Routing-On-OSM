@@ -3,6 +3,13 @@ var map;
 var geoJson;
 var bMarker, eMarker;
 
+var Routing = function() {
+  this.begin = null;
+  this.end = null;
+}
+
+var r = new Routing();
+
 function start() {
   field.setValue(22.996086277507416, 120.21786533296108);
 }
@@ -22,59 +29,59 @@ function Field() {
 }
 
 function createMap(setPlace) {
-  map = L.map('map').setView(setPlace, 14);
-  map.options.minZoom = 14;
-  var southWest = new L.LatLng(22.970800756838422, 120.18084213137627);
-  var northEast = new L.LatLng(23.021841032778894, 120.25491401553153);
-  var bounds = new L.LatLngBounds(southWest, northEast);
-  map.options.maxBounds = bounds;
-  L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  map = L.map('map', { zoomControl: false }).setView(setPlace, 14);
+  map.addControl(L.control.zoom({position:'topright'}));
+  //map.options.minZoom = 14;
+  //var southWest = new L.LatLng(22.970800756838422, 120.18084213137627);
+  //var northEast = new L.LatLng(23.021841032778894, 120.25491401553153);
+  //var bounds = new L.LatLngBounds(southWest, northEast);
+  //map.options.maxBounds = bounds;
+  map.addLayer(L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 18,
       attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
-  }).addTo(map);
+  }));
 }
 
 function routing() {
+  document.getElementById("loading").innerHTML += '<div class="ui active dimmer"><div class="ui large inverted text loader">Loading</div></div>';
   var request = $.ajax({
     type: "GET",
     url: "/routing",
     dataType: "json",
     data: {
-      beginLng: $("#beginLng").val(),
-      beginLat: $("#beginLat").val(),
-      endLng: $("#endLng").val(),
-      endLat: $("#endLat").val()
+      beginLng: r.begin.lng,
+      beginLat: r.begin.lat,
+      endLng: r.end.lng,
+      endLat: r.end.lat
     }
   });
   request.done(function(data) {
-    var myStyle = {
-      "color": "#ff7800"
-    };
-    geoJson = L.geoJson(data, {style: myStyle}).addTo(map);
+    console.log(data);
+    if(r.begin !== null && r.end !== null) {
+      var myStyle = {
+        "color": "#ff7800"
+      };
+      geoJson = L.geoJson(data, {style: myStyle}).addTo(map);
 
-    var str = "",
-        tmp = "";
-    for(var i = 0; i != data.length; i++) {
-      if(tmp !== data[i].road) {
-        str += "<p>";
-        str += data[i].road;
-        str += "</p>";
+      var str = "",
+          tmp = "";
+
+      str += "<div class='ui black header'><i class='road icon'></i> Road</div>";
+      for(var i = 0; i != data.length; i++) {
+        if(tmp !== data[i].road) {
+          str += "<p>";
+          str += data[i].road;
+          str += "</p>";
+        }
+        tmp = data[i].road;
       }
-      tmp = data[i].road;
+      $("#road").html(str);
     }
-    $("#road").html(str);
+    document.getElementById("loading").innerHTML = "";
   });
   request.fail(function( jqXHR, textStatus, errorThrown) {
+    //document.getElementById("now-loading").remove();
     console.err("err: " + textStatus + ' ' + errorThrown);
-  });
-}
-
-function getLocation($input1, $input2, myIcon) {
-  map.on('click', function(e) {
-    $input1.val(e.latlng.lat);
-    $input2.val(e.latlng.lng);
-    marker = L.marker(e.latlng,{icon: myIcon}).addTo(map);
-    map.off('click');
   });
 }
 
@@ -87,10 +94,13 @@ $("#begin").click(function() {
     map.removeLayer(geoJson);
   }
   map.on('click', function(e) {
-    $("#beginLat").val(e.latlng.lat);
-    $("#beginLng").val(e.latlng.lng);
     bMarker = L.marker(e.latlng,{icon: greenIcon}).addTo(map);
+    r.begin = e.latlng;
     map.off('click');
+
+    if(r.begin !== null && r.end !== null) {
+      routing();
+    }
   });
 });
 
@@ -103,35 +113,49 @@ $("#end").click(function() {
     map.removeLayer(geoJson);
   }
   map.on('click', function(e) {
-    $("#endLat").val(e.latlng.lat);
-    $("#endLng").val(e.latlng.lng);
+    //$("#endLat").val(e.latlng.lat);
+    //$("#endLng").val(e.latlng.lng);
     eMarker = L.marker(e.latlng,{icon: redIcon}).addTo(map);
+    r.end = e.latlng;
     map.off('click');
+
+    if(r.begin !== null && r.end !== null) {
+      routing();
+    }
   });
 });
 
 $("#reset").click(function() {
-  $("#beginLng").val("");
-  $("#beginLat").val("");
-  $("#endLng").val("");
-  $("#endLat").val("");
+  // remove street contents in the route description field.
   $("#road").html("");
+  // remove route on the map.
   if(geoJson !== undefined) {
     map.removeLayer(geoJson);
   }
+  // remove begin mark on the map.
   if(bMarker !== undefined) {
     map.removeLayer(bMarker);
   }
+  // remove end mark on the map.
   if(eMarker !== undefined) {
     map.removeLayer(eMarker);
   }
+  // remove begin and end point.
+  r.end = null;
+  r.begin = null;
 });
 
-$("#route").click(function() {
-  // remove previous routing layer(if exists);
-  if (geoJson !== undefined) {
-    map.removeLayer(geoJson);
-  }
-  routing();
-});
-
+// $("#hide").click(function() {
+//   r = 0 - $("#menu").width();
+//   $("#menu").stop().animate({left: r+'px'}, 500, function() {
+//     $("#show").show();
+//   });
+// });
+// 
+// $("#show").click(function() {
+//   $("#show").hide();
+//   r = 0;
+//   $("#menu").stop().animate({left: r+'px'}, 500);
+// })
+// 
+// $("#show").hide();

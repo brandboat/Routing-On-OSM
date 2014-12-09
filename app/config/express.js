@@ -3,6 +3,7 @@ var path            = require('path');
 var env             = process.env.NODE_ENV || 'development';
 var routes          = require('../routes');
 var errorHandler    = require('errorhandler');
+var favicon         = require('serve-favicon');
 
 module.exports = function (app, express) {
   app.set('env', env);
@@ -19,6 +20,8 @@ module.exports = function (app, express) {
 
   // ROUTES
   app.use(routes);
+
+  app.use(favicon(path.join(app.config.root, 'public', 'favicon.ico')));
 
   // load static files in /public
   app.use(express.static(path.join(app.config.root, 'public')));
