@@ -127,7 +127,7 @@ ROSM.GUI = {
     document.getElementById("hidden-something").style.display = 'none';
   },
 
-  addVia: function(marker_id, i,lat, lng) {
+  addVia: function(marker_id, i,lat, lng, desc) {
     if(ROSM.G.markers.route.length < 2) {
       return;
     }
@@ -135,10 +135,10 @@ ROSM.GUI = {
     if(marker_id === "tmp") {
       ROSM.G.markers.tmp.closePopup();
       ROSM.G.markers.tmp.hide();
-      ROSM.G.markers.addVia(new L.LatLng(lat, lng));
+      ROSM.G.markers.addVia(new L.LatLng(lat, lng), desc);
     } else {
       ROSM.G.markers.poi[marker_id][i].closePopup();
-      ROSM.G.markers.addVia(new L.LatLng(lat, lng));
+      ROSM.G.markers.addVia(new L.LatLng(lat, lng), desc);
     }
   },
 

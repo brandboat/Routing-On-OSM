@@ -5,6 +5,14 @@ html, body {
   margin: 0px;
 }
 
+.leaflet-popup-content {
+  margin: 0px !important;
+}
+
+h2 {
+  text-align: center !important;
+}
+
 #map {
   position: relative;
   float: right;

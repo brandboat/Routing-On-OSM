@@ -78,12 +78,14 @@ ROSM.extend(ROSM.Markers, {
     return this.route.length - 1;
   },
 
-  addVia: function(position) {
+  addVia: function(position, desc) {
     if(this.route.length < 2) {
       return;
     }
 
     this.route.splice(this.route.length - 1, 0, new ROSM.Marker(ROSM.CONSTANTS.VIA_LABEL, {icon: this.viaIcon}, position));
+    this.route[this.route.length-2].description = desc;
+
     ROSM.JSON.clear("routing");
     ROSM.G.markers.addPopup();
     ROSM.G.markers.show();
@@ -116,7 +118,7 @@ ROSM.extend(ROSM.Markers, {
       this.route.splice(id, 1);
       if(this.route.length > 1) {
         this.route[0].setLabel(ROSM.C.SOURCE_LABEL);
-        this.route[0].setDescription("Source");
+        // this.route[0].setDescription("Source");
         this.route[0].setIcon(this.beginIcon);
       }
     } else if(id == this.route.length-1 && this.route[ this.route.length-1 ].label == ROSM.C.TARGET_LABEL) {
@@ -129,7 +131,7 @@ ROSM.extend(ROSM.Markers, {
       this.route.splice(id, 1);
       if(this.route.length > 1) {
         this.route[this.route.length - 1].setLabel(ROSM.C.TARGET_LABEL);
-        this.route[this.route.length - 1].setDescription("Target");
+        // this.route[this.route.length - 1].setDescription("Target");
         this.route[this.route.length - 1].setIcon(this.endIcon);
       }
     } else {
@@ -166,6 +168,7 @@ ROSM.extend(ROSM.Markers, {
     var markers = [];
     for(var i = 0; i < ROSM.G.POI[cat].length; i++) {
       var poi = ROSM.G.POI[cat][i];
+      var name = poi.name.split(' ').join('_');
       // console.log(poi);
       var marker = new ROSM.Marker(cat, iconStyle, new L.LatLng(poi.location.lat, poi.location.lng));
       marker.addPopup("<div class='ui grid'>" +
@@ -176,7 +179,8 @@ ROSM.extend(ROSM.Markers, {
       "<div class='ui divider'></div>" +
       "<div class='ui center aligned basic segment'>" +
       "<div class='ui poi marker green button' onclick=" +
-        "ROSM.GUI.addVia(" + "\"" + cat + "\"," + i + "," + poi.location.lat + "," + poi.location.lng + ")>" +
+        "ROSM.GUI.addVia(" + "\"" + cat + "\"," + i + "," + 
+          poi.location.lat + "," + poi.location.lng + ",'"+ name + "')>" +
       "<i class='plus icon'></i>Add to Trip</div>" +
       "</div></div>");
       markers.push(marker);
@@ -205,16 +209,28 @@ ROSM.extend(ROSM.Markers, {
 
   addPopup: function() {
     for(var i = 0; i < this.route.length; i++) {
-      this.route[i].addPopup("<div class='ui grid'>" +
-      "<h3 class='ui center aligned header'>" +
-      "<i class='map marker large icon'></i>" +
-      "<div class='content'>" + this.route[i].label + "</div>" +
-      "</h3>" +
-      "<div class='ui divider'></div>" +
+      
+      var name = this.route[i].description.split('_').join(' ');
+      if(name === "") {
+        name = this.route[i].getLat() +
+            ",\n" + this.route[i].getLng();
+      }
+      if(i === 0) {
+        label = "Source";
+      } else if(i === this.route.length - 1){
+        label = "Target";
+      } else {
+        label = "Via " + i;
+      }
+
+      this.route[i].addPopup(
+      "<div class='ui segment'>" +
+      "<div class='ui top attached label'>" + label + "</div>" +
+      "<h2>" + name + "</h2>" +
       "<div class='ui center aligned basic segment'>" +
       "<div class='ui red button' onclick=ROSM.GUI.removeMarker('route'," + i + ")>" +
       "<i class='minus icon'></i>Remove</div>" +
-      "</div></div>");
+      "</div></div></div>");
     }
   }
 });
