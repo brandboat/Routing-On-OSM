@@ -9,6 +9,11 @@ html, body {
   margin: 0px !important;
 }
 
+.ui.vertical.ways.segment:hover {
+  cursor: pointer;
+  opacity: 0.7;
+}
+
 h2 {
   text-align: center !important;
 }

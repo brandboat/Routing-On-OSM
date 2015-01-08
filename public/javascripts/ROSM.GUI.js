@@ -35,13 +35,13 @@ ROSM.GUI = {
 
   },
 
-  inputFocus: function(marker_id) {
+  inputFocus: function(marker_id, i) {
     if(ROSM.G.markers.hasSource() && marker_id === ROSM.C.SOURCE_LABEL) {
       ROSM.G.markers.route[0].centerView();
     } else if(ROSM.G.markers.hasTarget() && marker_id === ROSM.C.TARGET_LABEL) {
       ROSM.G.markers.route[ROSM.G.markers.route.length - 1].centerView();
-    } else {
-      return;
+    } else if(ROSM.G.markers.route[i]){
+      ROSM.G.markers.route[i].centerView();
     }
   },
 
@@ -169,5 +169,10 @@ ROSM.GUI = {
       cb.prop("checked", true);
       ROSM.POI.call(category, bounds._southWest, bounds._northEast, center);
     }
+  },
+
+  label: function(i) {
+    ROSM.G.markers.openPopup(i);
+    ROSM.GUI.inputFocus(null, i);
   }
 }

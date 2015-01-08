@@ -72,5 +72,10 @@ ROSM.extend(ROSM.Marker, {
 
   closePopup: function() {
     this.marker.closePopup();
+  },
+
+  openPopup: function() {
+    this.marker.openPopup();
   }
+
 });

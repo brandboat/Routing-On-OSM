@@ -171,18 +171,17 @@ ROSM.extend(ROSM.Markers, {
       var name = poi.name.split(' ').join('_');
       // console.log(poi);
       var marker = new ROSM.Marker(cat, iconStyle, new L.LatLng(poi.location.lat, poi.location.lng));
-      marker.addPopup("<div class='ui grid'>" +
-      "<h3 class='ui center aligned header'>" +
-      "<i class='map marker large icon'></i>" +
-      "<div class='content'>" + poi.name + "</div>" +
-      "</h3>" +
-      "<div class='ui divider'></div>" +
+      marker.addPopup(
+      "<div class='ui segment'>" +
+      "<div class='ui top attached label'> POI </div>" +
+      "<h2>" + poi.name + "</h2>" +
       "<div class='ui center aligned basic segment'>" +
       "<div class='ui poi marker green button' onclick=" +
         "ROSM.GUI.addVia(" + "\"" + cat + "\"," + i + "," + 
           poi.location.lat + "," + poi.location.lng + ",'"+ name + "')>" +
       "<i class='plus icon'></i>Add to Trip</div>" +
-      "</div></div>");
+      "</div></div></div>");
+      
       markers.push(marker);
     }
     ROSM.G.markers.poi[cat] = markers;
@@ -211,26 +210,34 @@ ROSM.extend(ROSM.Markers, {
     for(var i = 0; i < this.route.length; i++) {
       
       var name = this.route[i].description.split('_').join(' ');
+      var color = "";
+
       if(name === "") {
         name = this.route[i].getLat() +
             ",\n" + this.route[i].getLng();
       }
       if(i === 0) {
         label = "Source";
+        color = "green";
       } else if(i === this.route.length - 1){
         label = "Target";
+        color = "teal";
       } else {
         label = "Via " + i;
       }
 
       this.route[i].addPopup(
       "<div class='ui segment'>" +
-      "<div class='ui top attached label'>" + label + "</div>" +
+      "<div class='ui top attached " + color + " label'>" + label + "</div>" +
       "<h2>" + name + "</h2>" +
       "<div class='ui center aligned basic segment'>" +
       "<div class='ui red button' onclick=ROSM.GUI.removeMarker('route'," + i + ")>" +
       "<i class='minus icon'></i>Remove</div>" +
       "</div></div></div>");
     }
+  },
+
+  openPopup: function(i) {
+    this.route[i].openPopup();
   }
 });

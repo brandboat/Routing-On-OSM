@@ -71,15 +71,12 @@ exports.pgr_dijkstra = function(req, res) {
         callback(err, null);
       } else {
         var routes = [];
-        
         // since the points array doesn't specify begin,
         // end of route, we need to divide them here.
         for(var i = 0; i < result.length - 1; i++) {
           var route = {"begin": result[i], "end": result[i+1]};
           routes.push(route);
-          
         }
-        console.log(routes);
         callback(null, routes);
       }
     });
@@ -146,7 +143,7 @@ exports.pgr_dijkstra = function(req, res) {
       var tmp3 = tmp2[0].split(',');
       for(var j = 0; j != tmp3.length; j++) {
         var tmp4 = tmp3[j].split(' ');
-        var point = [tmp4[0], tmp4[1]]
+        var point = [tmp4[0], tmp4[1]];
         tmp4[1];
         points[y] = point;
         y++;
