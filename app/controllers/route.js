@@ -1,109 +1,124 @@
-/*
-exports.queryTime = function(req, res) {
-  var pg = require('pg');
-  var config = require('../config/config');
-  //var conString = "postgres://" + config.database.username + ":"
-  //    + config.database.password + "@localhost/" + config.database.dbname;
-  var conString = config.database.url + "/" + config.database.dbname;
-  var client = new pg.Client(conString);
-
-  function connect_db() {
-    client.connect(function(err) {
-      if(err) {
-        return console.error('✗ Postgresql Connection Error. Please make sure Postgresql is running. -> ', err);
-      }
-      console.log("✔ Connect to Postgresql");
-    });
-  }
-  client.connect();
-  client.query('SELECT NOW() AS "theTime"', function(err, result) {
-    if(err) {
-      return console.error('✗ Postgresql Running Query Error', err);
-    }
-    res.send(200, result.rows[0].theTime);
-    //output: Tue Jan 15 2013 19:12:47 GMT-600 (CST)
-    client.end();
-  });
-}*/
-
 exports.pgr_dijkstra = function(req, res) {
+  //var conString = "postgres://" + config.database.username + ":"
+  //   + config.database.password + "@localhost/" + config.database.dbname;
+  
   var pg = require('pg');
   var config = require('../config/config');
+  var async = require('async');
   var conString = config.database.url + "/" + config.database.dbname;
-  //var conString = "postgres://" + config.database.username + ":"
-   //   + config.database.password + "@localhost/" + config.database.dbname;
   var client = new pg.Client(conString);
   var reqPoint = [];
-  /*
-  [
-    {
-      "lat": req.query.beginLat,
-      "lng": req.query.beginLng
-    },
-    {
-      "lat": req.query.endLat,
-      "lng": req.query.endLng
-    }
-  ];*/
+
   var point = [];
   var i = 0, j = 0;
   var queryStreets = [];
 
 
-
   client.connect();
-  eliminate(req.query.latlngs);
-  getPoint();
+  
+  async.waterfall([
+      function(callback) {
+        eliminate(req.query.latlngs, callback);
+      }, function(points, callback) {
+        getPgrVertices(points, callback);
+      },
+      function(routes, callback) {
+        getDijkstra(routes, callback);
+      }
+    ], function(err, result) {
+      if(err) {
+        console.error("Error: ", err);
+      } else {
+        allDone(result);
+      }
+  });
 
   // delete duplicate points.
-  function eliminate(latlngs) {
-    var q = latlngs;
-    reqPoint.push(q[0]);
-    for(var i = 1; i < q.length; i++) {
-      if(q[i].lat === q[i - 1].lat && q[i].lng === q[i - 1].lng) {
+  function eliminate(points, callback) {
+    var p = points;
+    var eliPoints = [];
+
+    eliPoints.push(p[0]);
+    
+    for(var i = 1; i < p.length; i++) {
+      if(p[i].lat === p[i - 1].lat && p[i].lng === p[i - 1].lng) {
       } else {
-        reqPoint.push(q[i]);
+        eliPoints.push(p[i]);
       }
     }
+    callback(null, eliPoints);
   }
+  
+  function getPgrVertices(reqPoints, callback) {
+    // get the nearest point of begin and end point in topology network(database).
+    var getPoint = function getPoint(point, callback) {
+    
+      var qStr = "SELECT id FROM ways_vertices_pgr ORDER BY " + 
+          "st_distance(the_geom, st_setsrid(st_makepoint(" +
+          point.lng + "," + point.lat + "), 4326)) LIMIT 1;";
 
-  // get the nearest point of begin and end point in topology network(database).
-  function getPoint() {
-    if(i === reqPoint.length) {
-      dijkstra(point[j], point[j + 1]);
-      j++;
-      return;
-    }
-    var qStr = "SELECT id FROM ways_vertices_pgr ORDER BY st_distance(the_geom, st_setsrid(st_makepoint(" + reqPoint[i].lng + "," + reqPoint[i].lat + "), 4326)) LIMIT 1;";
-    // console.log(qStr);
+      client.query(qStr, function(err,result) {
+        if(err) {
+          callback(err, null);
+        } else {
+          callback(null, result.rows[0].id);
+        }
+      });
+    };
 
-    client.query(qStr, function(err,result) {
+    async.map(reqPoints, getPoint, function(err, result) {
       if(err) {
-        console.log(qStr);
-        return console.error('✗ Postgresql Running Query Error', err);
+        callback(err, null);
+      } else {
+        var routes = [];
+        
+        // since the points array doesn't specify begin,
+        // end of route, we need to divide them here.
+        for(var i = 0; i < result.length - 1; i++) {
+          var route = {"begin": result[i], "end": result[i+1]};
+          routes.push(route);
+          
+        }
+        console.log(routes);
+        callback(null, routes);
       }
-      // console.log("%j", reqPoint[i]);
-      // console.log(result);
-      point[i++] = result.rows[0].id;
-      getPoint();
     });
   }
 
-  function dijkstra(begin, end) {
-    if(j === point.length - 1){
-      allDone(queryStreets);
-      return;
-    }
+  function getDijkstra(routesBeginEnd, callback) {
+    var routes = [];
 
-    var qStr = "WITH result AS (SELECT * FROM ways JOIN (SELECT seq, id1 AS node, id2 AS edge_id, cost, ROW_NUMBER() OVER (PARTITION BY 1) AS rank FROM pgr_dijkstra('SELECT gid AS id, source::integer, target::integer, length::double precision AS cost FROM ways'," + begin + ", " + end + ", false, false)) AS route ON ways.gid = route.edge_id ORDER BY rank) SELECT ST_AsEWKT(result.the_geom), name from result;";
-    // console.log(qStr);
-    client.query(qStr, function(err, result) {
+    // query pgrouting method 'dijkstra' here 
+    var dijkstra = function(route, callback) {
+      
+      var qStr = "WITH result AS (SELECT * FROM ways JOIN " +
+          "(SELECT seq, id1 AS node, id2 AS edge_id, cost, " +
+          "ROW_NUMBER() OVER (PARTITION BY 1) AS rank FROM " +
+          "pgr_dijkstra('SELECT gid AS id, source::integer, " +
+          "target::integer, length::double precision AS cost FROM ways', " +
+          route.begin + ", " + route.end + ", false, false)) " + 
+          "AS route ON ways.gid = route.edge_id ORDER BY rank) " +
+          "SELECT ST_AsEWKT(result.the_geom), name from result;";
+      
+      client.query(qStr, function(err, result) {
+        if(err) {
+          console.log(qStr);
+          return console.error('✗ Postgresql Running Query Error', err);
+        }
+
+        var r = parsingData(result.rows);
+        var queryStreets = collectLines(r);
+        callback(null, queryStreets);
+      });
+    };
+
+    async.map(routesBeginEnd, dijkstra, function(err, result) {
       if(err) {
-        console.log(qStr);
-        return console.error('✗ Postgresql Running Query Error', err);
+        callback(err, null);
+      } else {
+        callback(null, result);
       }
-      parsingData(result.rows);
-    });
+    }); 
   }
 
   function toGeoJson(road, type, points) {
@@ -139,8 +154,8 @@ exports.pgr_dijkstra = function(req, res) {
       var geoObj = toGeoJson(data[i].name, "LineString", points);
       result[x++] = geoObj;
     }
-    collectLines(result);
-
+    
+    return result;
   }
 
   function collectLines(result) {
@@ -160,10 +175,8 @@ exports.pgr_dijkstra = function(req, res) {
       lines.push(result[i]);
     }
     _result.push({"road": road, "lines": lines});
-    queryStreets.push(_result);
-    dijkstra(point[j], point[j + 1]);
-    j++;
-    //allDone(_result);
+    
+    return _result;
   }
 
   function allDone(data) {
