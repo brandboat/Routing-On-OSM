@@ -15,7 +15,7 @@ ROSM.JSON = {
         callback_function(response);
       })
       .fail(function(jqXHR, textStatus, errorThrown) {
-        console.err("err: " + textStatus + ' ' + errorThrown);
+        console.error("err: " + textStatus + ' ' + errorThrown);
       });
   },
 
