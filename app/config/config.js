@@ -7,7 +7,7 @@ var config = {
   development: {
     server: {
       port: 3000,
-      hostname: 'localhost',
+      hostname: 'brandboat',
     },
     database: {
       url: 'postgresql://127.0.0.1:5432',

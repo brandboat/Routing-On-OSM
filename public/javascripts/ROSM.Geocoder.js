@@ -99,25 +99,22 @@ ROSM.Geocoder = {
         var lat = response.results[k].geometry.location.lat;
         var lng = response.results[k].geometry.location.lng;
         var name = response.results[k].address_components[0].long_name;
+        var n = name.split(' ').join('_');
         it[k].onclick = function() {
           if(ROSM.G.markers.tmp) {
             ROSM.G.markers.tmp.hide();
           }
           ROSM.G.markers.setTmp(new L.latLng(lat, lng));
           ROSM.G.markers.tmp.addPopup(
-              "<div class='ui grid'>" +
-              "<h3 class='ui center aligned header'>" +
-              "<i class='map marker large icon'></i>" +
-              "<div class='content'>" + name + "</div>" +
-              "</h3>" +
-              "<div class='ui divider'></div>" +
+              "<div class='ui segment'>" +
+              "<div class='ui top attached label'> POI </div>" +
+              "<h2>" + name + "</h2>" +
               "<div class='ui center aligned basic segment'>" +
-              "<div class='ui tmp marker green button' onclick=ROSM.GUI.addVia('tmp'," + "\"\"," + lat + "," + lng + ")>" +
+              "<div class='ui tmp marker green button' onclick=ROSM.GUI.addVia('tmp'," + "\"\"," + lat + "," + lng + ",\"" + n + "\")>" +
               "<i class='plus icon'></i>Add to Trip</div>" +
-              "</div></div>");
+              "</div></div></div>");
           ROSM.G.markers.tmp.show();
           ROSM.G.markers.tmp.centerView();
-          console.log(ROSM.G.markers.route);
         };
       })();
     }
