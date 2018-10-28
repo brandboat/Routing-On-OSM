@@ -23,4 +23,4 @@ Demo : http://routingonosm-brandboat.rhcloud.com/
                           -clean
 7. node server.js
 
-for further information, please go to : http://brandboat.github.io/2014-08-16-Routing_on_OSM/ (Chinese)
+for further information, please go to : http://brandboat.github.io/blog/2014/08/16/Routing_on_OSM/ (Chinese)
